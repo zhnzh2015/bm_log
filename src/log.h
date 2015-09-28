@@ -1,5 +1,5 @@
-#ifndef BM_LOG_LOG_H
-#define BM_LOG_LOG_H
+#ifndef PUBLIC_BM_LOG_LOG_H
+#define PUBLIC_BM_LOG_LOG_H
 
 #include <pthread.h>
 #include <string>
@@ -14,7 +14,7 @@
 
 #define bm_log_write(level, _fmt_, args...)                            \
 do {                                                                   \
-    bm::log::Logger::get_instance()->write_log(level,             \
+    bm::log::Logger::get_instance()->write_log(level,                  \
         "[%s:%s:%d] "_fmt_, __FUNCTION__, __FILE__, __LINE__, ##args); \
 } while (0);
 
@@ -73,12 +73,12 @@ public:
 
     ~Logger();
 
-    bool is_init() { return _is_inited; }
+    bool is_init() { return _m_is_inited; }
 
     void init(int level, const std::string &dir, const std::string &fname);
 
     void set_level(int level) {
-        _log_level = BMLogLevel(level);
+        _m_log_level = static_cast<BMLogLevel>(level);
     }
 
     bool write_log(BMLogLevel level, const char *fmt, ...);
@@ -86,30 +86,30 @@ public:
 private:
     DISALLOW_COPY_AND_ASSIGN(Logger);
 
-    Logger() : _is_inited(false) {
-        pthread_mutex_init(&_init_lock, NULL);
-        pthread_mutex_init(&_flog_lock, NULL);
-        pthread_mutex_init(&_ffatal_lock, NULL);
+    Logger() : _m_is_inited(false) {
+        pthread_mutex_init(&_m_init_lock, NULL);
+        pthread_mutex_init(&_m_flog_lock, NULL);
+        pthread_mutex_init(&_m_ffatal_lock, NULL);
 
-        _flog   = stdout;
-        _ffatal = stderr;
-        _log_level = BM_LOG_LEVEL_DEBUG;
+        _m_flog = stdout;
+        _m_ffatal = stderr;
+        _m_log_level = BM_LOG_LEVEL_DEBUG;
     }
 
 private:
-    FILE *_flog;
-    pthread_mutex_t _flog_lock;
+    FILE *_m_flog;
+    pthread_mutex_t _m_flog_lock;
 
-    FILE *_ffatal;
-    pthread_mutex_t _ffatal_lock;
+    FILE *_m_ffatal;
+    pthread_mutex_t _m_ffatal_lock;
 
-    bool _is_inited;
-    pthread_mutex_t _init_lock;
+    bool _m_is_inited;
+    pthread_mutex_t _m_init_lock;
 
-    BMLogLevel _log_level;
+    BMLogLevel _m_log_level;
 }; // END class Logger
 
 } // END namespace log
 } // END namespace bm
 
-#endif // END BM_LOG_LOG_H
+#endif // END PUBLIC_BM_LOG_LOG_H
